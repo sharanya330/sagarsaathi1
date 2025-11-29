@@ -1,24 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 const User = require('../models/User');
 const Driver = require('../models/Driver');
 
-// Twilio configuration (optional)
-let twilioClient = null;
-if (process.env.TWILIO_ACCOUNT_SID &&
-  process.env.TWILIO_AUTH_TOKEN &&
-  process.env.TWILIO_PHONE_NUMBER &&
-  process.env.TWILIO_ACCOUNT_SID !== 'your_account_sid_here') {
-  try {
-    const twilio = require('twilio');
-    twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-    console.log('✓ Twilio SMS enabled');
-  } catch (error) {
-    console.log('⚠ Twilio not configured, using mock OTP');
-  }
+// Email configuration
+let transporter = null;
+
+if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+  transporter = nodemailer.createTransport({
+    service: process.env.EMAIL_SERVICE || 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  });
+  console.log('✓ Email service configured with user:', process.env.EMAIL_USER ? process.env.EMAIL_USER.substring(0, 3) + '***' : 'MISSING');
 } else {
-  console.log('⚠ Twilio credentials not found, using mock OTP');
+  console.log('⚠ Email credentials not found. EMAIL_USER:', !!process.env.EMAIL_USER, 'EMAIL_PASS:', !!process.env.EMAIL_PASS);
 }
 
 // OTP Store (in memory - in production use Redis)
@@ -29,93 +29,117 @@ function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// Send OTP via SMS or console
-async function sendOTP(phone, otp) {
-  if (twilioClient) {
+// Send OTP via Email or console
+async function sendOTP(email, otp) {
+  if (transporter) {
     try {
-      await twilioClient.messages.create({
-        body: `Your SagarSaathi OTP is: ${otp}. Valid for 5 minutes.`,
-        from: process.env.TWILIO_PHONE_NUMBER,
-        to: phone
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'SagarSaathi Verification Code',
+        text: `Your SagarSaathi verification code is: ${otp}. Valid for 5 minutes.`
       });
-      console.log(`✓ SMS sent to ${phone}`);
+      console.log(`✓ Email sent to ${email}`);
       return true;
     } catch (error) {
-      console.error('SMS Error:', error.message);
-      console.log(`⚠ Fallback: OTP for ${phone} is ${otp}`);
+      console.error('❌ Email Error Details:', error);
+      console.log(`⚠ Fallback: OTP for ${email} is ${otp}`);
       return false;
     }
   } else {
     // Mock mode - log to console
-    console.log(`📱 MOCK OTP for ${phone}: ${otp}`);
+    console.log(`📧 MOCK OTP for ${email}: ${otp} (No Transporter)`);
     return false;
   }
 }
 
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
-  const { phone, role } = req.body;
+  const { email, role } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: "Email is required" });
+  }
 
   // Generate OTP
   const otp = generateOTP();
 
   // Store OTP with 5-minute expiry
-  otpStore[phone] = {
+  otpStore[email] = {
     otp: otp,
     expiresAt: Date.now() + 5 * 60 * 1000 // 5 minutes
   };
 
   // Send OTP
-  const smsSent = await sendOTP(phone, otp);
+  await sendOTP(email, otp);
 
   res.json({
     message: "OTP sent successfully",
-    smsEnabled: !!twilioClient,
-    // In development, include OTP in response (remove in production)
-    ...(process.env.NODE_ENV !== 'production' && { devOTP: otp })
+    emailEnabled: !!transporter
   });
 });
 
 // POST /api/auth/verify
 router.post('/verify', async (req, res) => {
-  const { phone, otp, role } = req.body;
+  const { email, otp, role } = req.body;
+
+  if (!email || !otp) {
+    return res.status(400).json({ message: "Email and OTP are required" });
+  }
 
   // Check if OTP exists and is valid
-  const storedOTP = otpStore[phone];
+  const storedOTP = otpStore[email];
 
   if (!storedOTP) {
     return res.status(400).json({ message: "OTP not found. Please request a new one." });
   }
 
   if (Date.now() > storedOTP.expiresAt) {
-    delete otpStore[phone];
+    delete otpStore[email];
     return res.status(400).json({ message: "OTP expired. Please request a new one." });
   }
 
-  if (storedOTP.otp !== otp) {
+  console.log(`Debug: Verifying OTP for ${email}. Stored: '${storedOTP.otp}', Received: '${otp}'`);
+
+  if (String(storedOTP.otp).trim() !== String(otp).trim()) {
     return res.status(400).json({ message: "Invalid OTP" });
   }
 
   // OTP is valid - delete it
-  delete otpStore[phone];
+  delete otpStore[email];
 
   try {
     let user;
     if (role === 'driver') {
-      user = await Driver.findOne({ phone });
+      user = await Driver.findOne({ email });
       if (!user) {
+        // Create new driver with provided details
         user = await Driver.create({
-          phone,
-          vehicleType: 'OTHER',
-          name: 'New Driver'
+          email,
+          phone: req.body.phone || '', // Phone is collected in registration form
+          name: req.body.name || 'New Driver',
+          vehicleType: req.body.vehicleType || 'OTHER',
+          vehicleNumber: req.body.vehicleNumber,
+          cityBase: req.body.cityBase,
+          // Initialize empty docs structure
+          docs: {
+            licenseUrl: '',
+            rcUrl: '',
+            insuranceUrl: '',
+            permitUrl: '',
+            selfieUrl: ''
+          }
         });
       }
     } else {
-      user = await User.findOne({ phone });
+      user = await User.findOne({ email });
       if (!user) {
+        // Create new user with provided details
         user = await User.create({
-          phone,
-          name: 'New User'
+          email,
+          phone: req.body.phone || '', // Phone is collected in registration form
+          name: req.body.name || 'New User',
+          emergencyContact: req.body.emergencyContact || {}
         });
       }
     }

@@ -3,7 +3,14 @@ const mongoose = require("mongoose");
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI, {
+    // Support multiple standard MongoDB URI environment variable names
+    const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI || process.env.DATABASE_URL;
+
+    if (!mongoUri) {
+      throw new Error('MongoDB URI not found. Please set MONGODB_URI, MONGO_URI, or DATABASE_URL environment variable.');
+    }
+
+    const conn = await mongoose.connect(mongoUri, {
       // options can be omitted in latest mongoose
     });
     console.log(`MongoDB connected: ${conn.connection.host}`);
