@@ -26,24 +26,4 @@ services:
         sync: false
     healthCheckPath: /
 
-  # Frontend Web Service (Next.js)
-  - type: web
-    name: sagarsaathi-frontend
-    env: node
-    region: oregon
-    plan: free
-    branch: main
-    rootDir: frontend
-    buildCommand: npm install && npm run build
-    startCommand: npm start
-    envVars:
-      - key: NEXT_PUBLIC_API_URL
-        fromService:
-          type: web
-          name: sagarsaathi-backend
-          property: url
-      - key: NEXT_PUBLIC_SOCKET_URL
-        fromService:
-          type: web
-          name: sagarsaathi-backend
-          property: url
+
