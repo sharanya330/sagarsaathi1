@@ -21,8 +21,11 @@ echo -e "${GREEN}✓ JWT_SECRET generated${NC}"
 echo ""
 
 # Create backend .env
-echo "📝 Creating backend/.env..."
-cat > backend/.env << EOF
+if [ -f backend/.env ]; then
+    echo -e "${YELLOW}⚠️  backend/.env already exists, skipping creation...${NC}"
+else
+    echo "📝 Creating backend/.env..."
+    cat > backend/.env << EOF
 # MongoDB Configuration
 MONGODB_URI=mongodb://mongodb:27017/sagarsaathi
 
@@ -38,19 +41,24 @@ TWILIO_ACCOUNT_SID=your_account_sid_here
 TWILIO_AUTH_TOKEN=your_auth_token_here
 TWILIO_PHONE_NUMBER=your_twilio_phone_number_here
 EOF
-echo -e "${GREEN}✓ backend/.env created${NC}"
+    echo -e "${GREEN}✓ backend/.env created${NC}"
+fi
 echo ""
 
 # Create frontend .env.local
-echo "📝 Creating frontend/.env.local..."
-cat > frontend/.env.local << EOF
+if [ -f frontend/.env.local ]; then
+    echo -e "${YELLOW}⚠️  frontend/.env.local already exists, skipping creation...${NC}"
+else
+    echo "📝 Creating frontend/.env.local..."
+    cat > frontend/.env.local << EOF
 # API Configuration
 NEXT_PUBLIC_API_URL=http://localhost:5000
 
 # Socket.io Configuration
 NEXT_PUBLIC_SOCKET_URL=http://localhost:5000
 EOF
-echo -e "${GREEN}✓ frontend/.env.local created${NC}"
+    echo -e "${GREEN}✓ frontend/.env.local created${NC}"
+fi
 echo ""
 
 # Stop existing containers
