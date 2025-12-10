@@ -15,7 +15,27 @@ const app = express();
 // connect to MongoDB
 connectDB();
 
-app.use(cors());
+// CORS configuration for production
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3002",
+  process.env.FRONTEND_URL, // Add your Vercel URL here
+].filter(Boolean);
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.some(allowed => origin?.includes(allowed))) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+
 app.use(express.json());
 
 // Routes
@@ -37,8 +57,9 @@ const server = app.listen(PORT, () => {
 // Socket.io setup for real-time GPS tracking
 const io = require("socket.io")(server, {
   cors: {
-    origin: ["http://localhost:3002", "http://localhost:3000"],
-    methods: ["GET", "POST"]
+    origin: allowedOrigins,
+    methods: ["GET", "POST"],
+    credentials: true
   }
 });
 
