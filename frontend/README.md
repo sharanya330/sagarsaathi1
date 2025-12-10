@@ -31,6 +31,15 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+SagarSaathi is optimized for deployment on Vercel. For complete deployment instructions including backend setup, environment variables, and troubleshooting, see:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**📖 [Complete Deployment Guide](./DEPLOYMENT.md)**
+
+### Quick Deploy
+
+1. Install Vercel CLI: `npm install -g vercel`
+2. Deploy: `vercel --prod`
+3. Set environment variables in Vercel dashboard
+4. Deploy backend to Render/Railway (see deployment guide)
+
+For detailed step-by-step instructions, refer to the [DEPLOYMENT.md](./DEPLOYMENT.md) file.

@@ -2,7 +2,6 @@
 const nextConfig = {
     // Optimized for Vercel deployment
     reactStrictMode: true,
-    swcMinify: true,
 
     // Environment variables validation
     env: {
@@ -12,7 +11,13 @@ const nextConfig = {
 
     // Image optimization
     images: {
-        domains: ['res.cloudinary.com'], // Add your image domains
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'res.cloudinary.com',
+                pathname: '/**',
+            },
+        ],
         formats: ['image/avif', 'image/webp'],
     },
 
