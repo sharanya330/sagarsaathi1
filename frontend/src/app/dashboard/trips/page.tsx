@@ -33,12 +33,21 @@ export default function MyTripsPage() {
 
     async function fetchTrips() {
         try {
-            const user = JSON.parse(localStorage.getItem('user') || '{}')
-            const response = await fetch('/api/trips/user/' + user._id)
+            const token = localStorage.getItem('token')
+            if (!token) {
+                toast.error("Please login to view trips")
+                return
+            }
+
+            const response = await fetch('/api/trips', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
 
             if (response.ok) {
                 const data = await response.json()
-                setTrips(data)
+                setTrips(data.trips)
             } else {
                 toast.error("Failed to load trips")
             }
