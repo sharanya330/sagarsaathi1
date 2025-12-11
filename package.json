@@ -4,21 +4,14 @@
     "private": true,
     "description": "SagarSaathi - Women's Safety Travel Platform",
     "workspaces": [
-        "frontend",
-        "backend"
+        "frontend"
     ],
     "scripts": {
         "dev": "npm run dev --workspace=frontend",
-        "dev:frontend": "npm run dev --workspace=frontend",
-        "dev:backend": "npm run dev --workspace=backend",
-        "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
         "build": "npm run build --workspace=frontend",
-        "build:frontend": "npm run build --workspace=frontend",
         "start": "npm run start --workspace=frontend",
-        "start:frontend": "npm run start --workspace=frontend",
-        "start:backend": "npm run start --workspace=backend",
         "lint": "npm run lint --workspace=frontend",
-        "install:all": "npm install && npm install --workspace=frontend && npm install --workspace=backend"
+        "install:all": "npm install && npm install --workspace=frontend"
     },
     "keywords": [
         "women-safety",
