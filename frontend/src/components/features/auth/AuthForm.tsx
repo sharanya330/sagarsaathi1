@@ -66,7 +66,8 @@ export function AuthForm({ className, userType, ...props }: AuthFormProps) {
                     })
                 }
             } else {
-                toast.error("Failed to send OTP")
+                const errorData = await response.json().catch(() => ({ message: "Failed to send OTP" }))
+                toast.error(errorData.message || "Failed to send OTP")
             }
         } catch {
             toast.error("Network error")
