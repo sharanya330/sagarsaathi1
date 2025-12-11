@@ -12,9 +12,9 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const { email: rawEmail, otp, role, phone, name, vehicleType, vehicleNumber, cityBase, emergencyContact } = body;
 
-        if (!rawEmail || !otp) {
+        if (!rawEmail || !otp || !phone) {
             return NextResponse.json(
-                { message: 'Email and OTP are required' },
+                { message: 'Email, OTP, and Phone number are required' },
                 { status: 400 }
             );
         }
@@ -22,25 +22,11 @@ export async function POST(request: NextRequest) {
         const email = rawEmail.toLowerCase();
 
         // Check if OTP exists and is valid
-        const storedOTP = await OTP.findOne({ email }).sort({ createdAt: -1 });
-
-        console.log(`[Verify Debug] Email: ${email}, Received OTP: ${otp}`);
-        console.log(`[Verify Debug] Stored OTP Record:`, storedOTP);
+        const storedOTP = await OTP.findOne({ email, otp });
 
         if (!storedOTP) {
-            console.log('[Verify Debug] No OTP found in DB');
             return NextResponse.json(
-                { message: 'OTP not found or expired. Please request a new one.' },
-                { status: 400 }
-            );
-        }
-
-        const isMatch = String(storedOTP.otp).trim() === String(otp).trim();
-        console.log(`[Verify Debug] Match Result: ${isMatch} (Stored: '${storedOTP.otp}', Received: '${otp}')`);
-
-        if (!isMatch) {
-            return NextResponse.json(
-                { message: 'Invalid OTP' },
+                { message: 'Invalid OTP or expired. Please request a new one.' },
                 { status: 400 }
             );
         }
@@ -52,10 +38,19 @@ export async function POST(request: NextRequest) {
         if (role === 'driver') {
             user = await Driver.findOne({ email });
             if (!user) {
+                // Check if email exists in User collection
+                const existingUser = await User.findOne({ email });
+                if (existingUser) {
+                    return NextResponse.json(
+                        { message: 'Email already registered as a User. Cannot register as Driver.' },
+                        { status: 400 }
+                    );
+                }
+
                 // Create new driver
                 user = await Driver.create({
                     email,
-                    phone: phone || '',
+                    phone: phone || undefined,
                     name: name || 'New Driver',
                     vehicleType: vehicleType || 'OTHER',
                     vehicleNumber,
@@ -68,17 +63,40 @@ export async function POST(request: NextRequest) {
                         selfieUrl: '',
                     },
                 });
+            } else {
+                // Update existing driver if phone/name provided
+                if (phone || name) {
+                    user.phone = phone || user.phone;
+                    user.name = name || user.name;
+                    await user.save();
+                }
             }
         } else {
             user = await User.findOne({ email });
             if (!user) {
+                // Check if email exists in Driver collection
+                const existingDriver = await Driver.findOne({ email });
+                if (existingDriver) {
+                    return NextResponse.json(
+                        { message: 'Email already registered as a Driver. Cannot register as User.' },
+                        { status: 400 }
+                    );
+                }
+
                 // Create new user
                 user = await User.create({
                     email,
-                    phone: phone || '',
+                    phone: phone || undefined,
                     name: name || 'New User',
                     emergencyContact: emergencyContact || {},
                 });
+            } else {
+                // Update existing user if phone/name provided
+                if (phone || name) {
+                    user.phone = phone || user.phone;
+                    user.name = name || user.name;
+                    await user.save();
+                }
             }
         }
 

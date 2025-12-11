@@ -19,6 +19,7 @@ const emailSchema = z.object({
 
 const otpSchema = z.object({
     otp: z.string().length(6, "OTP must be 6 digits"),
+    phone: z.string().min(10, "Phone number must be at least 10 digits"),
 })
 
 interface AuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -83,14 +84,12 @@ export function AuthForm({ className, userType, ...props }: AuthFormProps) {
             const response = await fetch('/api/auth/verify', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, otp: data.otp, role: userType })
+                body: JSON.stringify({ email, otp: data.otp, phone: data.phone, role: userType })
             })
 
             if (response.ok) {
                 const result = await response.json()
                 localStorage.setItem('token', result.token)
-                localStorage.setItem('user', JSON.stringify(result.user))
-                toast.success("Login successful")
                 if (userType === "driver") {
                     router.push("/driver/dashboard")
                 } else {
@@ -165,6 +164,25 @@ export function AuthForm({ className, userType, ...props }: AuthFormProps) {
                             {otpForm.formState.errors.otp && (
                                 <p className="text-sm text-red-400">
                                     {otpForm.formState.errors.otp.message}
+                                </p>
+                            )}
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="phone" className="text-gray-300">Phone Number</Label>
+                            <Input
+                                id="phone"
+                                placeholder="9876543210"
+                                type="tel"
+                                autoCapitalize="none"
+                                autoComplete="tel"
+                                autoCorrect="off"
+                                disabled={isLoading}
+                                className="bg-white/5 border-white/10 text-white placeholder:text-gray-400 focus:border-primary/50 focus:ring-primary/20"
+                                {...otpForm.register("phone")}
+                            />
+                            {otpForm.formState.errors.phone && (
+                                <p className="text-sm text-red-400">
+                                    {otpForm.formState.errors.phone.message}
                                 </p>
                             )}
                         </div>

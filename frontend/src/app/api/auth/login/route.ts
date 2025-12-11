@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
         const otp = generateOTP();
 
         // Delete any existing OTPs for this email to prevent race conditions
-        await OTP.deleteMany({ email });
+        // await OTP.deleteMany({ email });
 
         // Store OTP in Database
         await OTP.create({ email, otp });

@@ -1,5 +1,7 @@
 import Link from "next/link"
 import { Home, Map, User, Settings, LogOut } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -7,6 +9,15 @@ import { Button } from "@/components/ui/button"
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export function DashboardSidebar({ className }: SidebarProps) {
+    const router = useRouter()
+
+    const handleLogout = () => {
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        toast.success("Logged out successfully")
+        router.push('/login')
+    }
+
     return (
         <div className={cn("pb-12 min-h-screen", className)}>
             <div className="space-y-4 py-4">
@@ -40,6 +51,16 @@ export function DashboardSidebar({ className }: SidebarProps) {
                             </Button>
                         </Link>
                     </div>
+                </div>
+                <div className="px-3 py-2 mt-auto">
+                    <Button
+                        variant="ghost"
+                        className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-400/10 transition-colors"
+                        onClick={handleLogout}
+                    >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Logout
+                    </Button>
                 </div>
             </div>
         </div>

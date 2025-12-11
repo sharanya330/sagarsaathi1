@@ -7,11 +7,11 @@ import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 export const metadata: Metadata = {
-    title: "Login - SagarSaathi",
-    description: "Login to your account",
+    title: "Driver Login - SagarSaathi",
+    description: "Login to your driver account",
 }
 
-export default function LoginPage() {
+export default function DriverLoginPage() {
     return (
         <div className="container relative flex h-screen w-screen flex-col items-center justify-center overflow-hidden">
             {/* Background Elements */}
@@ -33,25 +33,19 @@ export default function LoginPage() {
                 <div className="glass-card p-8 animate-float">
                     <div className="flex flex-col space-y-2 text-center mb-6">
                         <h1 className="text-2xl font-bold tracking-tight text-white">
-                            Welcome back
+                            Driver Login
                         </h1>
                         <p className="text-sm text-muted-foreground">
-                            Enter your email to sign in to your account
+                            Enter your email to sign in to your driver account
                         </p>
                     </div>
-                    <AuthForm type="login" userType="user" />
-                    <p className="px-8 text-center text-sm text-muted-foreground mt-6 space-y-2">
+                    <AuthForm type="login" userType="driver" />
+                    <p className="px-8 text-center text-sm text-muted-foreground mt-6">
                         <Link
-                            href="/register"
-                            className="block hover:text-primary underline underline-offset-4 transition-colors"
+                            href="/login"
+                            className="hover:text-primary underline underline-offset-4 transition-colors"
                         >
-                            Don&apos;t have an account? Sign Up
-                        </Link>
-                        <Link
-                            href="/driver/login"
-                            className="block hover:text-primary underline underline-offset-4 transition-colors"
-                        >
-                            Are you a driver? Login here
+                            Not a driver? User Login
                         </Link>
                     </p>
                 </div>
