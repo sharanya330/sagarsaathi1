@@ -98,7 +98,6 @@ export function AuthForm({ className, userType, ...props }: AuthFormProps) {
                 }
             } else {
                 const errorData = await response.json().catch(() => ({ message: "Failed to verify OTP" }))
-                console.log("VERIFY_ERROR_DEBUG:", JSON.stringify(errorData, null, 2))
                 toast.error(errorData.message || "Invalid OTP")
                 otpForm.setError("otp", { message: errorData.message || "Invalid OTP" })
             }

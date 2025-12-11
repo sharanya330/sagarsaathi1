@@ -40,14 +40,7 @@ export async function POST(request: NextRequest) {
 
         if (!isMatch) {
             return NextResponse.json(
-                {
-                    message: 'Invalid OTP',
-                    debug: {
-                        received: otp,
-                        stored: storedOTP.otp,
-                        email: email
-                    }
-                },
+                { message: 'Invalid OTP' },
                 { status: 400 }
             );
         }
