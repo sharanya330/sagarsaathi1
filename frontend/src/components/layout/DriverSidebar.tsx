@@ -1,4 +1,4 @@
-use client
+"use client"
 
 import Link from "next/link"
 import { Home, Map, User, Settings, LogOut } from "lucide-react"
@@ -30,22 +30,24 @@ export function DriverSidebar({ className }: SidebarProps) {
                         SagarSaathi Driver
                     </h2>
                     <div className="space-y-1">
-                        <Button variant="ghost" className="w-full justify-start bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary font-medium">
-                            <Home className="mr-2 h-4 w-4" />
-                            Dashboard
-                        </Button>
-                        <Button variant="ghost" className="w-full justify-start text-gray-400 hover:text-white hover:bg-white/10 transition-colors">
-                            <List className="mr-2 h-4 w-4" />
-                            Trip Queue
-                        </Button>
-                        <Button variant="ghost" className="w-full justify-start text-gray-400 hover:text-white hover:bg-white/10 transition-colors">
-                            <FileText className="mr-2 h-4 w-4" />
-                            Documents
-                        </Button>
-                        <Button variant="ghost" className="w-full justify-start text-gray-400 hover:text-white hover:bg-white/10 transition-colors">
-                            <Settings className="mr-2 h-4 w-4" />
-                            Settings
-                        </Button>
+                        <Link href="/driver/dashboard">
+                            <Button variant="ghost" className="w-full justify-start bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary font-medium">
+                                <Home className="mr-2 h-4 w-4" />
+                                Dashboard
+                            </Button>
+                        </Link>
+                        <Link href="/driver/dashboard/trips">
+                            <Button variant="ghost" className="w-full justify-start text-gray-400 hover:text-white hover:bg-white/10 transition-colors">
+                                <Map className="mr-2 h-4 w-4" />
+                                Trip Queue
+                            </Button>
+                        </Link>
+                        <Link href="/driver/dashboard/settings">
+                            <Button variant="ghost" className="w-full justify-start text-gray-400 hover:text-white hover:bg-white/10 transition-colors">
+                                <Settings className="mr-2 h-4 w-4" />
+                                Settings
+                            </Button>
+                        </Link>
                     </div>
                 </div>
                 <div className="px-3 py-2 mt-auto">
