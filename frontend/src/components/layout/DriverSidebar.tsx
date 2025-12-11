@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link"
 import { Home, List, FileText, Settings, LogOut } from "lucide-react"
 import { useRouter } from "next/navigation"
