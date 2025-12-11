@@ -1,12 +1,14 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { Loader2 } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
+import { signIn, useSession } from "next-auth/react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -22,6 +24,9 @@ const otpSchema = z.object({
     phone: z.string().min(10, "Phone number must be at least 10 digits"),
 })
 
+type EmailFormData = z.infer<typeof emailSchema>
+type OtpFormData = z.infer<typeof otpSchema>
+
 interface AuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
     type: "login" | "register"
     userType: "user" | "driver"
@@ -30,18 +35,43 @@ interface AuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
 export function AuthForm({ className, userType, ...props }: AuthFormProps) {
     const [isLoading, setIsLoading] = React.useState<boolean>(false)
     const [step, setStep] = React.useState<"email" | "otp">("email")
+    const router = useRouter()
+    const { data: session } = useSession()
 
-    const emailForm = useForm<z.infer<typeof emailSchema>>({
+    const emailForm = useForm<EmailFormData>({
         resolver: zodResolver(emailSchema),
     })
 
-    const otpForm = useForm<z.infer<typeof otpSchema>>({
+    const otpForm = useForm<OtpFormData>({
         resolver: zodResolver(otpSchema),
     })
 
-    const router = useRouter()
+    useEffect(() => {
+        const handleSSO = async () => {
+            if (session?.user?.email) {
+                try {
+                    const res = await fetch('/api/auth/exchange-token', {
+                        method: 'POST',
+                    })
+                    if (res.ok) {
+                        const data = await res.json()
+                        localStorage.setItem('token', data.token)
+                        localStorage.setItem('user', JSON.stringify(data.user))
+                        toast.success("Logged in successfully")
+                        router.push('/dashboard')
+                    } else {
+                        toast.error("Failed to login with Google")
+                    }
+                } catch (error) {
+                    console.error("SSO Error:", error)
+                    toast.error("Error logging in with Google")
+                }
+            }
+        }
+        handleSSO()
+    }, [session, router])
 
-    async function onEmailSubmit(data: z.infer<typeof emailSchema>) {
+    async function onEmailSubmit(data: EmailFormData) {
         setIsLoading(true)
         try {
             const response = await fetch('/api/auth/login', {
@@ -50,14 +80,13 @@ export function AuthForm({ className, userType, ...props }: AuthFormProps) {
                 body: JSON.stringify({ email: data.email, role: userType })
             })
 
-            if (response.ok) {
-                const data = await response.json()
-                setStep("otp")
+            const result = await response.json()
 
-                // Show OTP in toast (development mode)
-                if (data.devOTP) {
+            if (response.ok) {
+                setStep("otp")
+                if (result.devOTP) {
                     toast.success("OTP sent successfully", {
-                        description: `Your OTP is ${data.devOTP} ${data.emailEnabled ? '(also sent via Email)' : '(Email not configured)'}`,
+                        description: `Your OTP is ${result.devOTP} ${result.emailEnabled ? '(also sent via Email)' : '(Email not configured)'}`,
                         duration: 10000,
                     })
                 } else {
@@ -67,8 +96,7 @@ export function AuthForm({ className, userType, ...props }: AuthFormProps) {
                     })
                 }
             } else {
-                const errorData = await response.json().catch(() => ({ message: "Failed to send OTP" }))
-                toast.error(errorData.message || "Failed to send OTP")
+                toast.error(result.message || "Failed to send OTP")
             }
         } catch {
             toast.error("Network error")
@@ -77,28 +105,35 @@ export function AuthForm({ className, userType, ...props }: AuthFormProps) {
         }
     }
 
-    async function onOtpSubmit(data: z.infer<typeof otpSchema>) {
+    async function onOtpSubmit(data: OtpFormData) {
         setIsLoading(true)
         try {
             const email = emailForm.getValues("email")
             const response = await fetch('/api/auth/verify', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, otp: data.otp, phone: data.phone, role: userType })
+                body: JSON.stringify({
+                    email,
+                    otp: data.otp,
+                    phone: data.phone,
+                    role: userType
+                })
             })
 
+            const result = await response.json()
+
             if (response.ok) {
-                const result = await response.json()
                 localStorage.setItem('token', result.token)
+                localStorage.setItem('user', JSON.stringify(result.user))
                 if (userType === "driver") {
                     router.push("/driver/dashboard")
                 } else {
                     router.push("/dashboard")
                 }
+                toast.success("Logged in successfully")
             } else {
-                const errorData = await response.json().catch(() => ({ message: "Failed to verify OTP" }))
-                toast.error(errorData.message || "Invalid OTP")
-                otpForm.setError("otp", { message: errorData.message || "Invalid OTP" })
+                toast.error(result.message || "Invalid OTP")
+                otpForm.setError("otp", { message: result.message || "Invalid OTP" })
             }
         } catch {
             toast.error("Network error")
@@ -109,6 +144,58 @@ export function AuthForm({ className, userType, ...props }: AuthFormProps) {
 
     return (
         <div className={cn("grid gap-6", className)} {...props}>
+            <div className="text-center">
+                <h2 className="text-2xl font-bold tracking-tight">
+                    {step === 'email' ? 'Welcome back' : 'Verify OTP'}
+                </h2>
+                <p className="text-sm text-muted-foreground mt-2">
+                    {step === 'email'
+                        ? 'Enter your email to sign in to your account'
+                        : 'Enter the verification code sent to your email'}
+                </p>
+            </div>
+
+            {step === 'email' && (
+                <div className="space-y-4">
+                    <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => signIn('google')}
+                        disabled={isLoading}
+                    >
+                        <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+                            <path
+                                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                                fill="#4285F4"
+                            />
+                            <path
+                                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                                fill="#34A853"
+                            />
+                            <path
+                                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                                fill="#FBBC05"
+                            />
+                            <path
+                                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                                fill="#EA4335"
+                            />
+                        </svg>
+                        Sign in with Google
+                    </Button>
+                    <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                            <span className="w-full border-t border-white/10" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                            <span className="bg-background px-2 text-muted-foreground">
+                                Or continue with email
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {step === "email" ? (
                 <form onSubmit={emailForm.handleSubmit(onEmailSubmit)}>
                     <div className="grid gap-4">

@@ -3,12 +3,13 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "sonner";
+import { NextAuthProvider } from "@/components/providers/NextAuthProvider"
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
     title: "SagarSaathi",
-    description: "Where every journey feels like home",
+    description: "Empowering fishermen with technology",
 };
 
 export default function RootLayout({
@@ -18,9 +19,11 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={cn(inter.className, "min-h-screen bg-background font-sans antialiased")}>
-                {children}
-                <Toaster />
+            <body className={inter.className}>
+                <NextAuthProvider>
+                    {children}
+                    <Toaster />
+                </NextAuthProvider>
             </body>
         </html>
     );
