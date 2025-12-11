@@ -140,6 +140,14 @@ export function AuthForm({ className, userType, ...props }: AuthFormProps) {
             ) : (
                 <form onSubmit={otpForm.handleSubmit(onOtpSubmit)}>
                     <div className="grid gap-4">
+                        <div className="text-center text-sm">
+                            <p className="text-muted-foreground">
+                                Enter the code sent to
+                            </p>
+                            <p className="font-medium text-white">
+                                {emailForm.getValues("email")}
+                            </p>
+                        </div>
                         <div className="grid gap-2">
                             <Label htmlFor="otp" className="text-gray-300">Enter OTP</Label>
                             <Input
