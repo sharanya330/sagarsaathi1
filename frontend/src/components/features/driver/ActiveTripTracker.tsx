@@ -28,7 +28,7 @@ export function ActiveTripTracker() {
         }
 
         // Connect to Socket.io
-        const newSocket = io('http://localhost:5001')
+        const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL || window.location.origin)
         setSocket(newSocket)
 
         return () => {

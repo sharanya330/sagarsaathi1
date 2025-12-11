@@ -34,7 +34,7 @@ export default function MyTripsPage() {
     async function fetchTrips() {
         try {
             const user = JSON.parse(localStorage.getItem('user') || '{}')
-            const response = await fetch('http://localhost:5001/api/trips/user/' + user._id)
+            const response = await fetch('/api/trips/user/' + user._id)
 
             if (response.ok) {
                 const data = await response.json()

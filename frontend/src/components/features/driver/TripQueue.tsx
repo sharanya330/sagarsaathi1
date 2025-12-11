@@ -34,7 +34,10 @@ export function TripQueue() {
 
     async function fetchTrips() {
         try {
-            const response = await fetch('http://localhost:5001/api/trips')
+            const token = localStorage.getItem('token')
+            const response = await fetch('/api/trips', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
             if (response.ok) {
                 const data = await response.json()
                 setTrips(data)
@@ -100,9 +103,13 @@ export function TripQueue() {
     async function handleAcceptTrip(tripId: string) {
         try {
             const user = JSON.parse(localStorage.getItem('user') || '{}')
-            const response = await fetch(`http://localhost:5001/api/trips/${tripId}/accept`, {
+            const token = localStorage.getItem('token')
+            const response = await fetch(`/api/trips/${tripId}/accept`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
                 body: JSON.stringify({ driverId: user._id })
             })
 

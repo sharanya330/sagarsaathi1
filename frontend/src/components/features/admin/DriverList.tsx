@@ -34,7 +34,7 @@ export function DriverList() {
 
     async function fetchDrivers() {
         try {
-            const response = await fetch('http://localhost:5001/api/admin/drivers')
+            const response = await fetch('/api/admin/drivers')
             if (response.ok) {
                 const data = await response.json()
                 setDrivers(data)
@@ -50,7 +50,7 @@ export function DriverList() {
 
     async function handleVerify(driverId: string) {
         try {
-            const response = await fetch(`http://localhost:5001/api/admin/drivers/${driverId}/verify`, {
+            const response = await fetch(`/api/admin/drivers/${driverId}/verify`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' }
             })
@@ -68,7 +68,7 @@ export function DriverList() {
 
     async function handleReject(driverId: string) {
         try {
-            const response = await fetch(`http://localhost:5001/api/admin/drivers/${driverId}/reject`, {
+            const response = await fetch(`/api/admin/drivers/${driverId}/reject`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ reason: "Documents not valid" })

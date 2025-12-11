@@ -39,7 +39,7 @@ export function DocumentUpload() {
                 formData.append(key, file)
             })
 
-            const response = await fetch('http://localhost:5001/api/drivers/documents', {
+            const response = await fetch('/api/drivers/documents', {
                 method: 'POST',
                 body: formData
             })

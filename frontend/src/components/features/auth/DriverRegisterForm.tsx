@@ -45,7 +45,7 @@ export function DriverRegisterForm({ className, ...props }: React.HTMLAttributes
         setIsLoading(true)
         try {
             // First send OTP to email
-            const response = await fetch('http://localhost:5001/api/auth/login', {
+            const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: data.email, role: 'driver' })
@@ -79,7 +79,7 @@ export function DriverRegisterForm({ className, ...props }: React.HTMLAttributes
 
         setIsLoading(true)
         try {
-            const response = await fetch('http://localhost:5001/api/auth/verify', {
+            const response = await fetch('/api/auth/verify', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

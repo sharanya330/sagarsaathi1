@@ -34,7 +34,7 @@ export function SafetyMonitor() {
 
     async function fetchActiveTrips() {
         try {
-            const response = await fetch('http://localhost:5001/api/admin/trips/active')
+            const response = await fetch('/api/admin/trips/active')
             if (response.ok) {
                 const data = await response.json()
                 setTrips(data)
