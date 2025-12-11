@@ -3,10 +3,7 @@ import connectDB from '@/lib/db';
 import User from '@/models/User';
 import Driver from '@/models/Driver';
 import { generateToken } from '@/lib/auth';
-
-// Import OTP store from login route
-// In production, use Redis or similar
-const otpStore: Record<string, { otp: string; expiresAt: number }> = {};
+import OTP from '@/models/OTP';
 
 export async function POST(request: NextRequest) {
     try {
@@ -23,19 +20,11 @@ export async function POST(request: NextRequest) {
         }
 
         // Check if OTP exists and is valid
-        const storedOTP = otpStore[email];
+        const storedOTP = await OTP.findOne({ email }).sort({ createdAt: -1 });
 
         if (!storedOTP) {
             return NextResponse.json(
-                { message: 'OTP not found. Please request a new one.' },
-                { status: 400 }
-            );
-        }
-
-        if (Date.now() > storedOTP.expiresAt) {
-            delete otpStore[email];
-            return NextResponse.json(
-                { message: 'OTP expired. Please request a new one.' },
+                { message: 'OTP not found or expired. Please request a new one.' },
                 { status: 400 }
             );
         }
@@ -47,8 +36,8 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // OTP is valid - delete it
-        delete otpStore[email];
+        // OTP is valid - delete it (and any older ones for this email)
+        await OTP.deleteMany({ email });
 
         let user;
         if (role === 'driver') {
@@ -100,5 +89,4 @@ export async function POST(request: NextRequest) {
     }
 }
 
-// Export OTP store to share with login route
-export { otpStore };
+

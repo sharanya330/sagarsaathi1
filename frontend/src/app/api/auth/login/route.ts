@@ -3,6 +3,7 @@ import connectDB from '@/lib/db';
 import User from '@/models/User';
 import Driver from '@/models/Driver';
 import { generateToken } from '@/lib/auth';
+import OTP from '@/models/OTP';
 import nodemailer from 'nodemailer';
 
 // Email configuration
@@ -18,8 +19,7 @@ if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
     });
 }
 
-// OTP Store (in memory - in production use Redis)
-const otpStore: Record<string, { otp: string; expiresAt: number }> = {};
+// OTP Store (Database used instead of in-memory)
 
 // Generate random 6-digit OTP
 function generateOTP(): string {
@@ -67,11 +67,8 @@ export async function POST(request: NextRequest) {
         // Generate OTP
         const otp = generateOTP();
 
-        // Store OTP with 5-minute expiry
-        otpStore[email] = {
-            otp: otp,
-            expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
-        };
+        // Store OTP in Database
+        await OTP.create({ email, otp });
 
         // Send OTP
         await sendOTP(email, otp);
@@ -88,6 +85,3 @@ export async function POST(request: NextRequest) {
         );
     }
 }
-
-// Export OTP store for verify route
-export { otpStore };
