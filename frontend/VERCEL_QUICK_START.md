@@ -43,6 +43,14 @@ Add these in Vercel Dashboard → Settings → Environment Variables:
 | `NEXTAUTH_URL` | Production URL | `https://your-app.vercel.app` |
 | `NEXTAUTH_SECRET` | Random String | `your-random-secret` |
 
+### Important: Google OAuth Redirect URI
+In your **Google Cloud Console** > **Credentials** > **OAuth 2.0 Client IDs**:
+1.  Add your **Production URL** to "Authorized JavaScript origins":
+    -   `https://your-app.vercel.app`
+2.  Add your **Callback URL** to "Authorized redirect URIs":
+    -   `https://your-app.vercel.app/api/auth/callback/google`
+    -   *(If testing on Vercel Preview)*: `https://your-preview-url.vercel.app/api/auth/callback/google`
+
 ## Post-Deployment
 
 1. **Update Backend CORS**

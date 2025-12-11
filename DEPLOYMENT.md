@@ -90,6 +90,10 @@ You need to set the following environment variables in your Vercel Project Setti
 | `CLOUDINARY_API_KEY` | Cloudinary API Key | `123456789` |
 | `CLOUDINARY_API_SECRET` | Cloudinary API Secret | `abcdef123456` |
 | `NEXT_PUBLIC_API_URL` | API Base URL (Internal) | `https://your-app.vercel.app` |
+| `GOOGLE_CLIENT_ID` | Google OAuth Client ID | `your-client-id` |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth Client Secret | `your-client-secret` |
+| `NEXTAUTH_URL` | Production URL | `https://your-app.vercel.app` |
+| `NEXTAUTH_SECRET` | Random String for NextAuth | `openssl rand -base64 32` |
 
 ## 3. Deploying to Vercel
 
