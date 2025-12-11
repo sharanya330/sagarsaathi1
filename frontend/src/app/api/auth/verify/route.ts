@@ -24,14 +24,21 @@ export async function POST(request: NextRequest) {
         // Check if OTP exists and is valid
         const storedOTP = await OTP.findOne({ email }).sort({ createdAt: -1 });
 
+        console.log(`[Verify Debug] Email: ${email}, Received OTP: ${otp}`);
+        console.log(`[Verify Debug] Stored OTP Record:`, storedOTP);
+
         if (!storedOTP) {
+            console.log('[Verify Debug] No OTP found in DB');
             return NextResponse.json(
                 { message: 'OTP not found or expired. Please request a new one.' },
                 { status: 400 }
             );
         }
 
-        if (String(storedOTP.otp).trim() !== String(otp).trim()) {
+        const isMatch = String(storedOTP.otp).trim() === String(otp).trim();
+        console.log(`[Verify Debug] Match Result: ${isMatch} (Stored: '${storedOTP.otp}', Received: '${otp}')`);
+
+        if (!isMatch) {
             return NextResponse.json(
                 { message: 'Invalid OTP' },
                 { status: 400 }
