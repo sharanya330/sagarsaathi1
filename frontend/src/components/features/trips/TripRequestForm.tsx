@@ -67,7 +67,7 @@ export function TripRequestForm() {
                 endDate: data.dates.to || data.dates.from
             }
 
-            const response = await fetch('http://localhost:5001/api/trips', {
+            const response = await fetch('/api/trips', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(tripData)
