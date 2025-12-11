@@ -33,13 +33,19 @@ A comprehensive travel safety platform designed to enhance women's safety during
 
 ```
 sagarsaathi/
-├── frontend/           # Next.js application (Full Stack)
+├── frontend/           # Next.js application
 │   ├── src/
-│   │   ├── app/       # App router pages & API routes
+│   │   ├── app/       # App router pages
 │   │   ├── components/ # React components
-│   │   ├── lib/       # Utilities (DB, Auth, etc.)
-│   │   └── models/    # Mongoose models
+│   │   └── lib/       # Utilities
 │   └── package.json
+├── backend/           # Express API server
+│   ├── config/       # Database config
+│   ├── controllers/  # Route controllers
+│   ├── models/       # Mongoose models
+│   ├── routes/       # API routes
+│   ├── middleware/   # Auth middleware
+│   └── server.js
 ├── DEPLOYMENT.md     # Deployment guide
 └── package.json      # Root workspace config
 ```
@@ -66,28 +72,36 @@ sagarsaathi/
 
 3. **Configure environment variables**
    
-   **Frontend** (`frontend/.env.local`):
+   **Backend** (`backend/.env`):
    ```env
-   # Backend API (Internal)
-   NEXT_PUBLIC_API_URL=http://localhost:3000
-   
-   # Database
    MONGODB_URI=mongodb://localhost:27017/sagarsaathi
-   
-   # Auth & Email
    JWT_SECRET=your_secret_key
+   PORT=5000
+   FRONTEND_URL=http://localhost:3000
    EMAIL_SERVICE=gmail
    EMAIL_USER=your_email@gmail.com
    EMAIL_PASS=your_app_password
    ```
+   
+   **Frontend** (`frontend/.env.local`):
+   ```env
+   NEXT_PUBLIC_API_URL=http://localhost:5000
+   NEXT_PUBLIC_SOCKET_URL=http://localhost:5000
+   ```
 
-4. **Start development server**
+4. **Start development servers**
    ```bash
-   npm run dev
+   # Start both frontend and backend
+   npm run dev:all
+   
+   # Or start individually:
+   npm run dev:backend  # Backend on http://localhost:5000
+   npm run dev:frontend # Frontend on http://localhost:3000
    ```
 
 5. **Access the application**
-   - App: http://localhost:3000
+   - Frontend: http://localhost:3000
+   - Backend API: http://localhost:5000
 
 ## 🌐 Deployment
 
@@ -95,10 +109,15 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions.
 
 ### Quick Deployment Summary
 
-**Deploy to Vercel** (Frontend + Backend API):
+1. **Backend** → Deploy to Render/Railway/Fly.io
+2. **Frontend** → Deploy to Vercel
+3. **Database** → MongoDB Atlas
 
 ```bash
+# Deploy frontend to Vercel
 vercel --prod
+
+# Backend deploys automatically via Git push to Render/Railway
 ```
 
 ## 📚 API Documentation
@@ -127,8 +146,6 @@ vercel --prod
 
 ## 🔌 WebSocket Events
 
-> **Note:** Socket.io support is limited on Vercel. For production real-time features, consider using Pusher or Ably.
-
 ### Client → Server
 - `join-trip` - Join a trip room
 - `location-update` - Send location update
@@ -142,24 +159,35 @@ vercel --prod
 
 ```bash
 # Root level
-npm run dev              # Start dev server
-npm run build            # Build for production
-npm run install:all      # Install dependencies
+npm run dev              # Start frontend dev server
+npm run dev:all          # Start both frontend and backend
+npm run build            # Build frontend for production
+npm run install:all      # Install all dependencies
 
-# Frontend (Direct)
+# Frontend
 cd frontend
 npm run dev              # Development server
 npm run build            # Production build
 npm run start            # Start production server
 npm run lint             # Run ESLint
+
+# Backend
+cd backend
+npm run dev              # Development with nodemon
+npm start                # Production server
 ```
 
 ## 🧪 Testing
 
 ```bash
-# Test build
+# Test frontend build
 cd frontend
 npm run build
+
+# Test backend
+cd backend
+node -c server.js  # Syntax check
+npm start          # Start server
 ```
 
 ## 🔐 Security
