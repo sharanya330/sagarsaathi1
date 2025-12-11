@@ -38,6 +38,10 @@ Add these in Vercel Dashboard → Settings → Environment Variables:
 |----------|-------|---------|
 | `NEXT_PUBLIC_API_URL` | Your backend URL | `https://sagarsaathi-backend.onrender.com` |
 | `NEXT_PUBLIC_SOCKET_URL` | Your backend URL | `https://sagarsaathi-backend.onrender.com` |
+| `GOOGLE_CLIENT_ID` | Google Client ID | `your-client-id` |
+| `GOOGLE_CLIENT_SECRET` | Google Client Secret | `your-client-secret` |
+| `NEXTAUTH_URL` | Production URL | `https://your-app.vercel.app` |
+| `NEXTAUTH_SECRET` | Random String | `your-random-secret` |
 
 ## Post-Deployment
 
