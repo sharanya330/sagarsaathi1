@@ -49,6 +49,7 @@ In your **Google Cloud Console** > **Credentials** > **OAuth 2.0 Client IDs**:
     -   `https://your-app.vercel.app`
 2.  Add your **Callback URL** to "Authorized redirect URIs":
     -   `https://your-app.vercel.app/api/auth/callback/google`
+    -   `https://sagarsaathi-ten.vercel.app/api/auth/callback/google`
     -   *(If testing on Vercel Preview)*: `https://your-preview-url.vercel.app/api/auth/callback/google`
 
 ## Post-Deployment
