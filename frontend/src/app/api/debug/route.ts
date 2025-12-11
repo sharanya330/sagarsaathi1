@@ -11,6 +11,8 @@ export async function GET() {
             has_MONGODB_URI: !!MONGODB_URI,
             has_MONGO_URI: !!MONGO_URI,
             has_DATABASE_URL: !!DATABASE_URL,
+            has_EMAIL_USER: !!process.env.EMAIL_USER,
+            has_EMAIL_PASS: !!process.env.EMAIL_PASS,
             uri_length: MONGODB_URI ? MONGODB_URI.length : 0,
             node_env: process.env.NODE_ENV,
         },
