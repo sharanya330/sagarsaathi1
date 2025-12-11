@@ -13,6 +13,7 @@ export async function GET() {
             has_DATABASE_URL: !!DATABASE_URL,
             has_EMAIL_USER: !!process.env.EMAIL_USER,
             has_EMAIL_PASS: !!process.env.EMAIL_PASS,
+            has_JWT_SECRET: !!process.env.JWT_SECRET,
             uri_length: MONGODB_URI ? MONGODB_URI.length : 0,
             node_env: process.env.NODE_ENV,
         },

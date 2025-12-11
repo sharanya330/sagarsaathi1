@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
     } catch (error) {
         console.error('Verify error:', error);
         return NextResponse.json(
-            { message: 'Server error during verification' },
+            { message: error instanceof Error ? error.message : 'Server error during verification' },
             { status: 500 }
         );
     }
