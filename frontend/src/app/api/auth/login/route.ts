@@ -55,17 +55,22 @@ export async function POST(request: NextRequest) {
         await connectDB();
 
         const body = await request.json();
-        const { email, role } = body;
+        const { email: rawEmail, role } = body;
 
-        if (!email) {
+        if (!rawEmail) {
             return NextResponse.json(
                 { message: 'Email is required' },
                 { status: 400 }
             );
         }
 
+        const email = rawEmail.toLowerCase();
+
         // Generate OTP
         const otp = generateOTP();
+
+        // Delete any existing OTPs for this email to prevent race conditions
+        await OTP.deleteMany({ email });
 
         // Store OTP in Database
         await OTP.create({ email, otp });

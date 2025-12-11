@@ -10,14 +10,16 @@ export async function POST(request: NextRequest) {
         await connectDB();
 
         const body = await request.json();
-        const { email, otp, role, phone, name, vehicleType, vehicleNumber, cityBase, emergencyContact } = body;
+        const { email: rawEmail, otp, role, phone, name, vehicleType, vehicleNumber, cityBase, emergencyContact } = body;
 
-        if (!email || !otp) {
+        if (!rawEmail || !otp) {
             return NextResponse.json(
                 { message: 'Email and OTP are required' },
                 { status: 400 }
             );
         }
+
+        const email = rawEmail.toLowerCase();
 
         // Check if OTP exists and is valid
         const storedOTP = await OTP.findOne({ email }).sort({ createdAt: -1 });
