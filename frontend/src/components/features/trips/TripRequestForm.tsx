@@ -84,10 +84,13 @@ export function TripRequestForm() {
                 form.reset()
                 setDate(undefined)
             } else {
-                toast.error("Failed to create trip")
+                const errorData = await response.json().catch(() => ({ message: "Failed to create trip" }))
+                console.error("TRIP_REQUEST_ERROR:", errorData)
+                toast.error(errorData.message || "Failed to create trip")
             }
         } catch (error) {
-            toast.error("Network error")
+            console.error("TRIP_REQUEST_NETWORK_ERROR:", error)
+            toast.error("Network error. Check console for details.")
         } finally {
             setIsLoading(false)
         }
