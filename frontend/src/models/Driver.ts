@@ -29,7 +29,7 @@ export interface IDriver extends Document {
 const driverSchema = new Schema<IDriver>(
     {
         email: { type: String, required: true, unique: true },
-        phone: { type: String, required: true, unique: true },
+        phone: { type: String, required: false },
         name: { type: String },
         vehicleType: {
             type: String,
