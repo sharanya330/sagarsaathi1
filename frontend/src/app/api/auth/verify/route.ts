@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import User from '@/models/User';
 import Driver from '@/models/Driver';
+import Admin from '@/models/Admin';
 import { generateToken } from '@/lib/auth';
 import OTP from '@/models/OTP';
 
@@ -68,6 +69,20 @@ export async function POST(request: NextRequest) {
                 if (phone || name) {
                     user.phone = phone || user.phone;
                     user.name = name || user.name;
+                    await user.save();
+                }
+            }
+        } else if (role === 'admin') {
+            user = await Admin.findOne({ email });
+            if (!user) {
+                // Create new admin
+                user = await Admin.create({
+                    email,
+                    name: name || 'Admin',
+                });
+            } else {
+                if (name) {
+                    user.name = name;
                     await user.save();
                 }
             }

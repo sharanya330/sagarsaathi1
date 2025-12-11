@@ -32,8 +32,8 @@ export const authOptions: NextAuthOptions = {
                             // phone is now optional
                         });
                     } else {
-                        // Update name if missing
-                        if (!existingUser.name && user.name) {
+                        // Update name if missing or if it's the default 'New User'
+                        if ((!existingUser.name || existingUser.name === 'New User') && user.name) {
                             existingUser.name = user.name;
                             await existingUser.save();
                         }

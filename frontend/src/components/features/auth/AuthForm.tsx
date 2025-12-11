@@ -29,7 +29,7 @@ type OtpFormData = z.infer<typeof otpSchema>
 
 interface AuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
     type: "login" | "register"
-    userType: "user" | "driver"
+    userType: "user" | "driver" | "admin"
 }
 
 export function AuthForm({ className, userType, ...props }: AuthFormProps) {
@@ -155,7 +155,7 @@ export function AuthForm({ className, userType, ...props }: AuthFormProps) {
                 </p>
             </div>
 
-            {step === 'email' && (
+            {step === 'email' && userType !== 'admin' && (
                 <div className="space-y-4">
                     <Button
                         variant="outline"
@@ -254,25 +254,27 @@ export function AuthForm({ className, userType, ...props }: AuthFormProps) {
                                 </p>
                             )}
                         </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="phone" className="text-gray-300">Phone Number</Label>
-                            <Input
-                                id="phone"
-                                placeholder="9876543210"
-                                type="tel"
-                                autoCapitalize="none"
-                                autoComplete="tel"
-                                autoCorrect="off"
-                                disabled={isLoading}
-                                className="bg-white/5 border-white/10 text-white placeholder:text-gray-400 focus:border-primary/50 focus:ring-primary/20"
-                                {...otpForm.register("phone")}
-                            />
-                            {otpForm.formState.errors.phone && (
-                                <p className="text-sm text-red-400">
-                                    {otpForm.formState.errors.phone.message}
-                                </p>
-                            )}
-                        </div>
+                        {userType !== 'admin' && (
+                            <div className="grid gap-2">
+                                <Label htmlFor="phone" className="text-gray-300">Phone Number</Label>
+                                <Input
+                                    id="phone"
+                                    placeholder="9876543210"
+                                    type="tel"
+                                    autoCapitalize="none"
+                                    autoComplete="tel"
+                                    autoCorrect="off"
+                                    disabled={isLoading}
+                                    className="bg-white/5 border-white/10 text-white placeholder:text-gray-400 focus:border-primary/50 focus:ring-primary/20"
+                                    {...otpForm.register("phone")}
+                                />
+                                {otpForm.formState.errors.phone && (
+                                    <p className="text-sm text-red-400">
+                                        {otpForm.formState.errors.phone.message}
+                                    </p>
+                                )}
+                            </div>
+                        )}
                         <Button disabled={isLoading} className="bg-primary hover:bg-primary/90 text-black font-semibold transition-all hover:shadow-[0_0_20px_rgba(6,182,212,0.3)]">
                             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Verify & Login
@@ -288,7 +290,8 @@ export function AuthForm({ className, userType, ...props }: AuthFormProps) {
                         </Button>
                     </div>
                 </form>
-            )}
-        </div>
+            )
+            }
+        </div >
     )
 }
