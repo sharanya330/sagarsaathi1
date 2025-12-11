@@ -1,9 +1,10 @@
-"use client"
+use client
 
 import Link from "next/link"
-import { Home, List, FileText, Settings, LogOut } from "lucide-react"
+import { Home, Map, User, Settings, LogOut } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { signOut } from "next-auth/react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -13,11 +14,12 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> { }
 export function DriverSidebar({ className }: SidebarProps) {
     const router = useRouter()
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         localStorage.removeItem('token')
         localStorage.removeItem('user')
+        await signOut({ redirect: false })
         toast.success("Logged out successfully")
-        router.push('/login')
+        router.push('/driver/login')
     }
 
     return (
