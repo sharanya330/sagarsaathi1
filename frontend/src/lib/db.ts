@@ -29,8 +29,9 @@ async function connectDB() {
     const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI || process.env.DATABASE_URL;
 
     if (!MONGODB_URI) {
+        const checkedVars = ['MONGODB_URI', 'MONGO_URI', 'DATABASE_URL'];
         throw new Error(
-            `Please define the MONGODB_URI environment variable inside .env.local. NODE_ENV: ${process.env.NODE_ENV}`
+            `Missing MongoDB Connection String. Checked: ${checkedVars.join(', ')}. NODE_ENV: ${process.env.NODE_ENV}. Please ensure environment variables are set in your hosting provider (e.g., Vercel) or .env file.`
         );
     }
 
