@@ -10,6 +10,7 @@ import nodemailer from 'nodemailer';
 let transporter: nodemailer.Transporter | null = null;
 
 if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+    console.log(`✉ Email service found: ${process.env.EMAIL_SERVICE || 'gmail'}`);
     transporter = nodemailer.createTransport({
         service: process.env.EMAIL_SERVICE || 'gmail',
         auth: {
@@ -17,6 +18,8 @@ if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
             pass: process.env.EMAIL_PASS,
         },
     });
+} else {
+    console.log('⚠ Email configuration missing (EMAIL_USER or EMAIL_PASS)');
 }
 
 // OTP Store (Database used instead of in-memory)
