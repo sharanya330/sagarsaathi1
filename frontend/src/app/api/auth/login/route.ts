@@ -27,26 +27,38 @@ function generateOTP(): string {
 }
 
 // Send OTP via Email or console
-async function sendOTP(email: string, otp: string): Promise<boolean> {
+async function sendOTP(email: string, otp: string): Promise<{ success: boolean; devOTP?: string }> {
     if (transporter) {
         try {
             await transporter.sendMail({
-                from: process.env.EMAIL_USER,
+                from: `"SagarSaathi" <${process.env.EMAIL_USER}>`,
                 to: email,
                 subject: 'SagarSaathi Verification Code',
                 text: `Your SagarSaathi verification code is: ${otp}. Valid for 5 minutes.`,
+                html: `
+                    <div style="font-family: sans-serif; padding: 20px; color: #333;">
+                        <h2 style="color: #06b6d4;">SagarSaathi Verification</h2>
+                        <p>Your verification code is:</p>
+                        <div style="font-size: 32px; font-weight: bold; letter-spacing: 5px; padding: 10px 0; color: #000;">${otp}</div>
+                        <p style="font-size: 14px; color: #666;">This code is valid for 5 minutes.</p>
+                    </div>
+                `,
             });
             console.log(`✓ Email sent to ${email}`);
-            return true;
+            return { success: true };
         } catch (error) {
             console.error('❌ Email Error:', error);
-            console.log(`⚠ Fallback: OTP for ${email} is ${otp}`);
-            return false;
+            // In development, return the OTP so the user can still progress
+            if (process.env.NODE_ENV === 'development') {
+                console.log(`⚠ Fallback: OTP for ${email} is ${otp}`);
+                return { success: false, devOTP: otp };
+            }
+            return { success: false };
         }
     } else {
         // Mock mode - log to console
         console.log(`📧 MOCK OTP for ${email}: ${otp}`);
-        return false;
+        return { success: false, devOTP: process.env.NODE_ENV === 'development' ? otp : undefined };
     }
 }
 
@@ -76,11 +88,12 @@ export async function POST(request: NextRequest) {
         await OTP.create({ email, otp });
 
         // Send OTP
-        await sendOTP(email, otp);
+        const otpResult = await sendOTP(email, otp);
 
         return NextResponse.json({
-            message: 'OTP sent successfully',
+            message: otpResult.success ? 'OTP sent successfully' : 'OTP generation fallback',
             emailEnabled: !!transporter,
+            devOTP: otpResult.devOTP,
         });
     } catch (error) {
         console.error('Login error:', error);

@@ -1,3 +1,6 @@
+"use client"
+
+import * as React from "react"
 import { Metadata } from "next"
 
 import { DocumentUpload } from "@/components/features/driver/DocumentUpload"
@@ -11,6 +14,16 @@ export const metadata: Metadata = {
 }
 
 export default function DriverDashboardPage() {
+    const [activeTab, setActiveTab] = React.useState("queue")
+
+    React.useEffect(() => {
+        const params = new URLSearchParams(window.location.search)
+        const tab = params.get("tab")
+        if (tab && ["queue", "active", "documents"].includes(tab)) {
+            setActiveTab(tab)
+        }
+    }, [])
+
     return (
         <div className="space-y-8">
             <div className="flex items-center justify-between">
@@ -39,7 +52,7 @@ export default function DriverDashboardPage() {
                 ))}
             </div>
 
-            <Tabs defaultValue="queue" className="space-y-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
                 <TabsList className="bg-white/5 border border-white/10 p-1 h-auto rounded-xl">
                     <TabsTrigger value="queue" className="data-[state=active]:bg-cyan-500 data-[state=active]:text-black text-blue-200/60 hover:text-white transition-all rounded-lg py-2 px-4">
                         Trip Queue

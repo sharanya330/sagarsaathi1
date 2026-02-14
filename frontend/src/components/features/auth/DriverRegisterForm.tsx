@@ -94,7 +94,7 @@ export function DriverRegisterForm({ className, ...props }: React.HTMLAttributes
                 localStorage.setItem('token', result.token)
                 localStorage.setItem('user', JSON.stringify(result.user))
                 toast.success("Registration successful")
-                router.push("/driver/dashboard")
+                router.push("/driver/dashboard?tab=documents")
             } else {
                 toast.error("Invalid OTP")
                 otpForm.setError("otp", { message: "Invalid OTP" })
